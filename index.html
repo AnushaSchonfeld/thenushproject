@@ -8,23 +8,28 @@
 <meta property="og:title" content="The Nush Project">
 <meta property="og:description" content="Sport is the way in. We use it to bring kids into AI, coding, teaching and new interests.">
 <meta property="og:url" content="https://thenushproject.org">
-<meta name="theme-color" content="#0f0f11">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230f0f11'/><text x='6' y='23' font-family='Arial' font-weight='900' font-size='18' fill='%23f0eeea'>N</text><rect x='21' y='17' width='5' height='5' fill='%23cb5a57'/></svg>">
+<meta name="theme-color" content="#FBF7F1">
+<link rel="icon" href="img/logo-mark.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Baloo+2:wght@600;800&family=Inter:wght@400;700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<header class="nav">
+<header class="nav" id="nav">
   <a class="logo" href="#top" aria-label="The Nush Project home">
-    <span class="logo-the">THE</span>NUSH<span class="dot"></span><span class="logo-proj">PROJECT</span>
+    <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+      <path d="M8 37V19a12 12 0 0 1 24 0v18" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+      <circle cx="20" cy="29.5" r="7.5" class="mark-ball"/>
+    </svg>
+    <span class="wordmark"><span class="wm-the">the</span><b>nush</b><span class="wm-proj">project</span></span>
   </a>
-  <button class="menu-btn" aria-label="Open menu" aria-expanded="false">☰</button>
+  <button class="menu-btn" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
   <nav class="links">
     <a href="#mission">Mission</a>
-    <a href="#pillars">Projects</a>
-        <a href="#story">Story</a>
+    <a href="#projects">Projects</a>
+    <a href="#story">Story</a>
     <a href="#join" class="btn small">Get involved</a>
   </nav>
 </header>
@@ -33,27 +38,31 @@
 
   <!-- HERO -->
   <section class="hero">
-    <div class="court" aria-hidden="true">
-      <svg viewBox="0 0 600 600" preserveAspectRatio="xMidYMid slice">
-        <g fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="300" cy="300" r="70"/>
-          <line x1="0" y1="300" x2="600" y2="300"/>
-          <path d="M60 0 v80 a240 240 0 0 0 480 0 V0"/>
-          <rect x="220" y="0" width="160" height="190"/>
-          <circle cx="300" cy="190" r="60"/>
-          <path d="M60 600 v-80 a240 240 0 0 1 480 0 v80"/>
-          <rect x="220" y="410" width="160" height="190"/>
-          <circle cx="300" cy="410" r="60"/>
-        </g>
-      </svg>
-    </div>
-    <div class="hero-inner">
-      <p class="eyebrow"><span class="dot sm"></span>A non-profit · sport as a doorway</p>
-      <h1>Sport is <em>the way in.</em></h1>
-      <p class="lede">Kids already love sport. The Nush Project uses it as a doorway into everything else: AI, coding, teaching and interests they never knew they had.</p>
-      <div class="cta-row">
-        <a href="#join" class="btn">Get involved</a>
-        <a href="#pillars" class="btn ghost">See our projects →</a>
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">A non-profit · sport as a doorway</p>
+        <h1>Sport is<br><span class="hl">the way in.</span></h1>
+        <p class="lede">Kids already love sport. The Nush Project uses it as a doorway into everything else: AI, coding, teaching and interests they never knew they had.</p>
+        <div class="cta-row">
+          <a href="#projects" class="btn">See our projects</a>
+          <a href="#join" class="btn ghost">Get involved</a>
+        </div>
+      </div>
+
+      <div class="hero-art" aria-hidden="true">
+        <svg viewBox="0 0 400 440" class="door">
+          <path class="door-glow" d="M70 420V200a130 130 0 0 1 260 0v220z"/>
+          <path class="door-frame" d="M70 420V200a130 130 0 0 1 260 0v220" fill="none" stroke-width="16" stroke-linecap="round"/>
+          <line class="floor" x1="20" y1="420" x2="380" y2="420" stroke-width="6" stroke-linecap="round"/>
+          <g class="ball">
+            <circle cx="200" cy="350" r="62"/>
+            <path d="M138 350h124M200 288v124M155 306c26 24 26 64 0 88M245 306c-26 24-26 64 0 88" fill="none" stroke-width="5"/>
+          </g>
+        </svg>
+        <span class="chip c1">AI</span>
+        <span class="chip c2">Code</span>
+        <span class="chip c3">Teaching</span>
+        <span class="chip c4">Something new</span>
       </div>
     </div>
   </section>
@@ -61,44 +70,46 @@
   <!-- MISSION -->
   <section id="mission" class="mission">
     <div class="wrap two-col">
-      <div>
+      <div data-reveal>
         <p class="eyebrow">Our mission</p>
         <h2>Start with what they love.</h2>
       </div>
-      <div class="mission-copy">
-        <p>A kid who says they "aren't into" coding or AI will happily argue for an hour about whether a ball was in or out. That curiosity is already there. It just needs a door.</p>
+      <div class="mission-copy" data-reveal>
+        <p class="big">A kid who says they "aren't into" coding or AI will happily argue for an hour about whether a ball was in or out. That curiosity is already there. It just needs a door.</p>
         <p>The Nush Project builds those doors. We take the sports kids already care about and turn them into a way in: to technology, to learning, and to new interests. The goal isn't to make athletes. It's to show kids how much more they can be.</p>
       </div>
     </div>
   </section>
 
-  <!-- PILLARS -->
-  <section id="pillars" class="pillars">
+  <!-- PROJECTS -->
+  <section id="projects" class="projects">
     <div class="wrap">
-      <p class="eyebrow">Our projects</p>
-      <h2>One idea. Many doors.</h2>
+      <div class="section-head" data-reveal>
+        <p class="eyebrow">Our projects</p>
+        <h2>One idea. Many doors.</h2>
+      </div>
 
       <div class="cards">
-        <article class="card">
-          <div class="card-num">01</div>
-          <div class="card-icon" aria-hidden="true">
-            <svg viewBox="0 0 48 48"><path d="M17 14L7 24l10 10M31 14l10 10-10 10M27 10l-6 28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <article class="card" data-reveal style="--d:0">
+          <div class="card-top">
+            <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M17 14L7 24l10 10M31 14l10 10-10 10M27 10l-6 28" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="card-num">01</span>
           </div>
-          <h3>Sport → AI & code</h3>
+          <h3><span class="from">Sport</span> → AI &amp; code</h3>
           <p>Through our work with Code AI, we use sport to teach how technology works. Our first project, AI Ref, has kids train an AI referee, so they learn how AI really thinks by doing it themselves.</p>
           <ul>
-            <li><a href="#ai-ref">AI Ref: our free game →</a></li>
-            <li><a href="teachers/">Free classroom lesson →</a></li>
+            <li><a href="#ai-ref">AI Ref: our free game</a></li>
+            <li><a href="teachers/">Free classroom lesson</a></li>
             <li>English and Hindi</li>
           </ul>
         </article>
 
-        <article class="card">
-          <div class="card-num">02</div>
-          <div class="card-icon" aria-hidden="true">
-            <svg viewBox="0 0 48 48"><path d="M6 14l18-8 18 8-18 8z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M13 18v10c0 4 5 7 11 7s11-3 11-7V18M42 14v12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+        <article class="card" data-reveal style="--d:1">
+          <div class="card-top">
+            <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M6 15l18-8 18 8-18 8z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M13 19v9c0 4 5 7 11 7s11-3 11-7v-9M42 15v11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>
+            <span class="card-num">02</span>
           </div>
-          <h3>Sport → the classroom</h3>
+          <h3><span class="from">Sport</span> → the classroom</h3>
           <p>We go into classrooms and teach younger students, using sport to make new ideas click. A lesson about AI or data lands differently when it starts with a game kids already know.</p>
           <ul>
             <li>Sessions led by students</li>
@@ -107,10 +118,10 @@
           </ul>
         </article>
 
-        <article class="card">
-          <div class="card-num">03</div>
-          <div class="card-icon" aria-hidden="true">
-            <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M6 24h36M24 6v36M11 11c7 7 7 19 0 26M37 11c-7 7-7 19 0 26" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>
+        <article class="card" data-reveal style="--d:2">
+          <div class="card-top">
+            <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="3"/><path d="M6 24h36M24 6v36M11 11c7 7 7 19 0 26M37 11c-7 7-7 19 0 26" fill="none" stroke="currentColor" stroke-width="3"/></svg></span>
+            <span class="card-num">03</span>
           </div>
           <h3>UK50</h3>
           <!-- TODO: replace with a real description of UK50 and what The Nush Project does with it -->
@@ -120,57 +131,61 @@
     </div>
   </section>
 
-  <!-- AI REF -->
-  <section id="ai-ref" class="airef">
-    <div class="wrap airef-grid">
-      <div class="airef-copy">
-        <p class="airef-eyebrow">A Nush Project · AI Literacy</p>
-        <h2>AI Ref: Train Your Own AI Referee</h2>
-        <p class="airef-sub">A free game that teaches kids how AI really learns, no experience needed.</p>
-        <p>Can you teach an AI to make a fair call? In AI Ref, kids become AI trainers: they teach a friendly robot referee, Ref-Bot, to judge whether a badminton shot lands IN or OUT. Instead of just using AI, they build it, showing Ref-Bot examples, testing what it learned, and fixing it when it gets things wrong.</p>
-        <p>Across five quick levels they discover how AI learns from examples, why it needs diverse data to stay fair, and why AI still needs people to check it. Built to run on low-cost phones and low-bandwidth connections, in English and Hindi, with a no-technology classroom version for schools without devices.</p>
-        <div class="airef-ctas">
-          <a class="airef-play" href="play/">Play AI Ref <span aria-hidden="true">▶</span></a>
-          <a class="airef-teach" href="teachers/">For teachers: free classroom lesson →</a>
+  <!-- AI REF (project spotlight, in the game's own palette) -->
+  <section id="ai-ref" class="spotlight">
+    <div class="wrap">
+      <div class="airef" data-reveal>
+        <div class="airef-copy">
+          <p class="airef-eyebrow">Project spotlight · AI Literacy</p>
+          <h2>AI Ref: Train Your Own AI Referee</h2>
+          <p class="airef-sub">A free game that teaches kids how AI really learns, no experience needed.</p>
+          <p>Can you teach an AI to make a fair call? In AI Ref, kids become AI trainers: they teach a friendly robot referee, Ref-Bot, to judge whether a badminton shot lands IN or OUT. Instead of just using AI, they build it, showing Ref-Bot examples, testing what it learned, and fixing it when it gets things wrong.</p>
+          <p>Across five quick levels they discover how AI learns from examples, why it needs diverse data to stay fair, and why AI still needs people to check it. Built to run on low-cost phones and low-bandwidth connections, in English and Hindi, with a no-technology classroom version for schools without devices.</p>
+          <div class="airef-ctas">
+            <a class="airef-play" href="play/">Play AI Ref <span aria-hidden="true">▶</span></a>
+            <a class="airef-teach" href="teachers/">For teachers: free classroom lesson →</a>
+          </div>
+          <p class="airef-note">Free. No sign-up. English and Hindi. Ages 8 to 11.</p>
         </div>
-        <p class="airef-note">Free. No sign-up. English and Hindi. Ages 8 to 11.</p>
-      </div>
 
-      <a class="airef-visual" href="play/" aria-label="Play AI Ref">
-        <div class="phone">
-          <div class="phone-bar"><span>Level 1</span><span class="pips"><i class="on"></i><i></i><i></i><i></i><i></i></span></div>
-          <div class="phone-court"><img src="img/airef/court-close-call.svg" alt="" width="240" height="175"></div>
-          <div class="phone-q">IN or OUT?</div>
-          <div class="phone-btns"><span class="in">IN</span><span class="out">OUT</span></div>
-        </div>
-        <img class="refbot" src="img/airef/refbot-happy.svg" alt="Ref-Bot, the friendly robot referee" width="150" height="150">
-        <img class="shuttle" src="img/airef/shuttle.svg" alt="" width="54" height="54">
-      </a>
+        <a class="airef-visual" href="play/" aria-label="Play AI Ref">
+          <div class="phone">
+            <div class="phone-bar"><span>Level 1</span><span class="pips"><i class="on"></i><i></i><i></i><i></i><i></i></span></div>
+            <div class="phone-court"><img src="img/airef/court-close-call.svg" alt="" width="240" height="175"></div>
+            <div class="phone-q">IN or OUT?</div>
+            <div class="phone-btns"><span class="in">IN</span><span class="out">OUT</span></div>
+          </div>
+          <img class="refbot" src="img/airef/refbot-happy.svg" alt="Ref-Bot, the friendly robot referee" width="150" height="150">
+          <img class="shuttle" src="img/airef/shuttle.svg" alt="" width="54" height="54">
+        </a>
+      </div>
     </div>
   </section>
 
   <!-- HOW IT CONNECTS -->
   <section class="loop">
     <div class="wrap">
-      <p class="eyebrow">How it connects</p>
-      <h2>Hook. Explore. Pass it on.</h2>
-      <ol class="steps">
-        <li><span>Hook</span>Start with a sport kids already care about.</li>
-        <li><span>Explore</span>Use it to open a door into AI, code, teaching or something new.</li>
-        <li><span>Pass it on</span>Older students bring it back to younger ones in the classroom.</li>
-      </ol>
+      <div class="loop-panel" data-reveal>
+        <p class="eyebrow light">How it connects</p>
+        <h2>Hook. Explore. Pass it on.</h2>
+        <ol class="steps">
+          <li data-reveal style="--d:0"><span class="step-n">1</span><b>Hook</b>Start with a sport kids already care about.</li>
+          <li data-reveal style="--d:1"><span class="step-n">2</span><b>Explore</b>Use it to open a door into AI, code, teaching or something new.</li>
+          <li data-reveal style="--d:2"><span class="step-n">3</span><b>Pass it on</b>Older students bring it back to younger ones in the classroom.</li>
+        </ol>
+      </div>
     </div>
   </section>
 
   <!-- STORY -->
   <section id="story" class="story">
     <div class="wrap two-col">
-      <div>
+      <div data-reveal>
         <p class="eyebrow">Why "Nush"</p>
         <h2>Started by a player.</h2>
       </div>
-      <div class="mission-copy">
-        <p>The Nush Project was founded by Anusha Schonfeld, a basketball player who also writes code. Sport was never only about the game. It was a way into other things.</p>
+      <div class="mission-copy" data-reveal>
+        <p class="big">The Nush Project was founded by Anusha Schonfeld, a basketball player who also writes code. Sport was never only about the game. It was a way into other things.</p>
         <p>Everything here, from the AI projects to the classroom sessions, grew out of that idea. It's run by young people, for young people, and it's just getting started.</p>
       </div>
     </div>
@@ -179,24 +194,26 @@
   <!-- JOIN -->
   <section id="join" class="join">
     <div class="wrap">
-      <p class="eyebrow">Get involved</p>
-      <h2>Help us open more doors.</h2>
-      <div class="join-grid">
-        <div class="join-card">
-          <h3>Students & volunteers</h3>
-          <p>Love sport and something else too? Help teach, build or run a project.</p>
+      <div class="join-panel" data-reveal>
+        <p class="eyebrow">Get involved</p>
+        <h2>Help us open more doors.</h2>
+        <div class="join-grid">
+          <div class="join-card" data-reveal style="--d:0">
+            <h3>Students &amp; volunteers</h3>
+            <p>Love sport and something else too? Help teach, build or run a project.</p>
+          </div>
+          <div class="join-card" data-reveal style="--d:1">
+            <h3>Schools &amp; teachers</h3>
+            <p>Bring a Nush Project session into your classroom.</p>
+          </div>
+          <div class="join-card" data-reveal style="--d:2">
+            <h3>Partners &amp; supporters</h3>
+            <p>Help us reach more kids and more classrooms.</p>
+          </div>
         </div>
-        <div class="join-card">
-          <h3>Schools & teachers</h3>
-          <p>Bring a Nush Project session into your classroom.</p>
-        </div>
-        <div class="join-card">
-          <h3>Partners & supporters</h3>
-          <p>Help us reach more kids and more classrooms.</p>
-        </div>
+        <!-- TODO: replace with the real contact address once email is set up on the domain -->
+        <a class="btn big" href="mailto:hello@thenushproject.org">hello@thenushproject.org</a>
       </div>
-      <!-- TODO: replace with the real contact address once email is set up on the domain -->
-      <a class="btn big" href="mailto:hello@thenushproject.org">hello@thenushproject.org</a>
     </div>
   </section>
 
@@ -204,7 +221,13 @@
 
 <footer class="foot">
   <div class="wrap foot-inner">
-    <div class="logo">THE&nbsp;NUSH<span class="dot"></span>PROJECT</div>
+    <a class="logo" href="#top" aria-label="Back to top">
+      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+        <path d="M8 37V19a12 12 0 0 1 24 0v18" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+        <circle cx="20" cy="29.5" r="7.5" class="mark-ball"/>
+      </svg>
+      <span class="wordmark"><span class="wm-the">the</span><b>nush</b><span class="wm-proj">project</span></span>
+    </a>
     <p>A registered non-profit · thenushproject.org</p>
     <p class="faint">© <span id="yr">2026</span> The Nush Project</p>
   </div>
@@ -212,19 +235,36 @@
 
 <script>
   document.getElementById('yr').textContent = new Date().getFullYear();
+
+  // mobile menu
   const btn = document.querySelector('.menu-btn'), nav = document.querySelector('.links');
   btn.addEventListener('click', () => {
     const open = nav.classList.toggle('open');
+    btn.classList.toggle('open', open);
     btn.setAttribute('aria-expanded', open);
   });
   nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-    nav.classList.remove('open'); btn.setAttribute('aria-expanded', false);
+    nav.classList.remove('open'); btn.classList.remove('open'); btn.setAttribute('aria-expanded', false);
   }));
-  // fade sections in as they scroll into view
+
+  // nav gets a backdrop once you leave the hero
+  const header = document.getElementById('nav');
+  const onScroll = () => header.classList.toggle('scrolled', scrollY > 12);
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  // highlight the nav link for the section in view
+  const linkFor = id => nav.querySelector(`a[href="#${id}"]:not(.btn)`);
+  const spy = new IntersectionObserver(es => es.forEach(e => {
+    const a = linkFor(e.target.id); if (!a) return;
+    if (e.isIntersecting) { nav.querySelectorAll('a').forEach(x => x.classList.remove('active')); a.classList.add('active'); }
+  }), { rootMargin: '-45% 0px -50% 0px' });
+  ['mission', 'projects', 'story'].forEach(id => spy.observe(document.getElementById(id)));
+
+  // staggered reveal on scroll
   const io = new IntersectionObserver(es => es.forEach(e => {
     if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-  }), { threshold: 0.12 });
-  document.querySelectorAll('section:not(.hero)').forEach(s => io.observe(s));
+  }), { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('[data-reveal]').forEach(el => io.observe(el));
 </script>
 </body>
 </html>

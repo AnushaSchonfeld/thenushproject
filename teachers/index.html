@@ -6,8 +6,9 @@
 <title>AI Ref for Teachers · The Nush Project</title>
 <meta name="description" content="Be the AI Referee: a free, no-technology 50-minute lesson that teaches how AI learns. Slides, lesson plan and printable cards.">
 <meta name="theme-color" content="#F4F8F6">
+<link rel="icon" href="../img/logo-mark.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root { --court:#1F7A4D; --bot:#2B7FE0; --sun:#FFC53D; --ink:#0E2A20; --paper:#F4F8F6; --line:#dbe7e0; }
   * { box-sizing: border-box; }
@@ -16,6 +17,8 @@
   header { border-bottom: 1px solid var(--line); background: #fff; }
   header .wrap { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; padding-bottom: 16px; gap: 12px; }
   header a { color: var(--ink); text-decoration: none; font-weight: 800; }
+  .logo { display: inline-flex; align-items: center; gap: 9px; font-family: "Bricolage Grotesque", sans-serif; font-weight: 500; font-size: 19px; color: #6E776F; letter-spacing: -.02em; }
+  .logo b { color: #15211B; font-weight: 800; }
   .back { color: var(--court); font-size: 15px; }
   .hero { display: flex; gap: 28px; align-items: center; padding: 64px 0 28px; }
   .hero img { width: 120px; flex: none; }
@@ -48,7 +51,10 @@
 <body>
 <header>
   <div class="wrap">
-    <a href="../">The Nush Project</a>
+    <a class="logo" href="../" aria-label="The Nush Project home">
+      <svg viewBox="0 0 40 40" width="28" height="28" aria-hidden="true"><path d="M8 37V19a12 12 0 0 1 24 0v18" fill="none" stroke="#15211B" stroke-width="4.5" stroke-linecap="round"/><circle cx="20" cy="29.5" r="7.5" fill="#F26A3D"/></svg>
+      <span>the <b>nush</b> project</span>
+    </a>
     <a class="back" href="../#ai-ref">← Back to AI Ref</a>
   </div>
 </header>
