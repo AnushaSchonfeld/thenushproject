@@ -95,11 +95,39 @@ section.in { opacity: 1; transform: none; }
 .lede { font-size: clamp(18px, 2.2vw, 22px); color: var(--text-dim); max-width: 600px; margin-bottom: 36px; }
 .cta-row { display: flex; gap: 14px; flex-wrap: wrap; }
 
+/* hero orbit — every sport circling the NUSH square: "all sports, one way in" */
+.orbit { position: absolute; z-index: 0; width: 540px; aspect-ratio: 1; right: calc((100vw - 1120px) / 2 - 80px); top: 50%; transform: translateY(-50%); pointer-events: none; opacity: .6; }
+.ring { position: absolute; border-radius: 50%; border: 1.5px dashed var(--line); }
+.r1 { inset: 0; }
+.r2 { inset: 22%; border-style: solid; opacity: .7; }
+.core { position: absolute; left: 50%; top: 50%; width: 34px; height: 34px; margin: -17px; background: var(--accent); animation: pulse 3.2s ease-in-out infinite; }
+.spin { position: absolute; inset: 0; animation: spin 60s linear infinite; }
+.sat { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px;
+  transform: rotate(var(--a)) translateY(-270px) rotate(calc(-1 * var(--a))); }
+.sat svg { width: 100%; height: 100%; padding: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 50%;
+  fill: none; stroke: var(--text); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round;
+  animation: spin 60s linear infinite reverse; }
+.sat:nth-child(odd) svg { stroke: var(--accent); }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(.82); } }
+@media (prefers-reduced-motion: reduce) { .spin, .sat svg, .core { animation: none; } }
+@media (max-width: 1000px) {
+  .orbit { width: 360px; right: -120px; top: auto; bottom: 20px; transform: none; opacity: .5; }
+  .sat { width: 48px; height: 48px; margin: -24px; transform: rotate(var(--a)) translateY(-180px) rotate(calc(-1 * var(--a))); }
+  .sat svg { padding: 10px; }
+}
+
 /* MISSION / STORY */
 .mission, .story { border-top: 1px solid var(--line); }
 .two-col { display: grid; grid-template-columns: 1fr 1.3fr; gap: 64px; align-items: start; }
 .mission-copy p { font-size: 19px; color: var(--text-dim); }
 .mission-copy p:first-child { color: var(--text); font-size: 22px; line-height: 1.5; }
+
+.founder { margin: 36px 0 0; max-width: 360px; }
+.founder img { display: block; width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: cover; border-radius: var(--radius); background: var(--bg-2); }
+.founder figcaption { margin-top: 12px; font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--text-faint); }
+.founder figcaption::before { content: ""; display: inline-block; width: 8px; height: 8px; background: var(--accent); margin-right: 10px; vertical-align: 1px; }
+.founder.empty { display: none; }
 
 /* PILLARS */
 .pillars { background: var(--bg-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -198,6 +226,7 @@ section.in { opacity: 1; transform: none; }
   .cards, .join-grid, .steps { grid-template-columns: 1fr; }
   .steps li { padding-bottom: 28px; }
   .two-col { grid-template-columns: 1fr; gap: 24px; }
+  .founder { max-width: 300px; }
   section { padding: 80px 0; }
 }
 @media (max-width: 720px) {
