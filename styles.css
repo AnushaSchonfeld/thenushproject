@@ -100,8 +100,8 @@ section.in { opacity: 1; transform: none; }
 .ring { position: absolute; border-radius: 50%; border: 1.5px dashed var(--line); opacity: .6; }
 .r1 { inset: 0; }
 .r2 { inset: 22%; border-style: solid; opacity: .7; }
-.core { position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px; background: var(--accent); padding: 6px; opacity: .75; animation: bob 5s ease-in-out infinite; }
-.core svg { display: block; width: 100%; height: 100%; fill: #fff; }
+.core { position: absolute; left: 50%; top: 50%; width: 88px; height: 88px; margin: -44px; animation: bob 5s ease-in-out infinite; }
+.core svg { display: block; width: 100%; height: 100%; fill: none; stroke: var(--accent); stroke-width: .9; stroke-linejoin: round; opacity: .8; }
 .spin { position: absolute; inset: 0; animation: spin 60s linear infinite; }
 .sat { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px;
   transform: rotate(var(--a)) translateY(-250px) rotate(calc(-1 * var(--a))); }
@@ -115,7 +115,7 @@ section.in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) { .spin, .sat svg, .core { animation: none; } }
 @media (max-width: 1000px) {
   .orbit { width: 360px; right: -120px; top: auto; bottom: 20px; transform: none; }
-  .core { width: 32px; height: 32px; margin: -16px; padding: 5px; }
+  .core { width: 64px; height: 64px; margin: -32px; }
   .sat { width: 48px; height: 48px; margin: -24px; transform: rotate(var(--a)) translateY(-180px) rotate(calc(-1 * var(--a))); }
   .sat svg { padding: 10px; }
 }
