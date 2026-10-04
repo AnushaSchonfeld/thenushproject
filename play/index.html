@@ -1,0 +1,882 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>AI Ref: Badminton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Baloo 2 also covers Devanagari, so Hindi localization needs no new font -->
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ================================================================
+   AI REF — a near-textless AI-literacy mini-game (badminton line calls).
+   The AI is a line judge ("Ref-Bot") that calls a shuttle IN or OUT —
+   a real, recognizable use of AI (cf. Hawk-Eye / electronic line calling).
+   Audience: grades 3–5, English-as-second-language, India.
+   FIVE LEVELS, each one AI-literacy idea (discovery order):
+     1 only IN  → fails on OUT  (you need IN *and* OUT)
+     2 IN + OUT → it judges right (learns from examples)
+     3 more examples = more confident   (data quantity)
+     4 fix a wrong call               (label quality)
+     5 you check Ref-Bot              (human oversight)
+   Extend: add an entry to LEVELS.  Localize: translate STRINGS.en, set LANG.
+   Audio: fill in speak() (already called per screen).
+   ================================================================ */
+:root{
+  --court:#1f7a4d; --court-2:#34a86b; --in:#cdebd6; --out:#efe7d2;
+  --sky-1:#bfe9ff; --sky-2:#e9f8ff;
+  --shuttle:#fff; --sun:#ffc53d; --sun-deep:#f5a623;
+  --bad:#e0533d; --good:#19a463;
+  --bot:#4da3ff; --bot-deep:#2b7fe0;
+  --ink:#0e2a20;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:"Nunito",system-ui,sans-serif;background:#0b3326;color:var(--ink);
+  display:flex;align-items:center;justify-content:center;min-height:100dvh}
+
+#phone{position:relative;width:min(420px,100vw);height:min(820px,100dvh);
+  background:linear-gradient(var(--sky-1),var(--sky-2));overflow:hidden;
+  border-radius:28px;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+#phone::after{content:"";position:absolute;left:0;right:0;bottom:0;height:42%;z-index:0;
+  background:repeating-linear-gradient(90deg,rgba(0,0,0,.04) 0 22px,transparent 22px 44px),
+            linear-gradient(var(--court-2),var(--court))}
+.stage{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column}
+
+.levels{display:flex;justify-content:center;gap:8px;padding:12px 0 2px;z-index:6}
+.lv{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.45);
+  border:2px solid rgba(255,255,255,.65);transition:transform .3s}
+.lv.done{background:var(--sun);border-color:var(--sun-deep)}
+.lv.now{background:#fff;border-color:var(--sun);transform:scale(1.35)}
+
+.hud{display:flex;justify-content:center;gap:7px;padding:4px 0;z-index:5;min-height:30px}
+.hud.hidden{visibility:hidden}
+.pip{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.45);
+  display:grid;place-items:center;border:2px solid rgba(255,255,255,.7);transition:transform .25s}
+.pip svg{width:15px;height:15px;opacity:.25;transition:opacity .3s,transform .3s}
+.pip.on{background:#fff;border-color:var(--sun)} .pip.on svg{opacity:1;transform:scale(1.1)}
+.pip.pop{animation:pop .4s}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.45)}100%{transform:scale(1)}}
+
+.middle{flex:1;position:relative;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:6px 20px}
+
+.eyebrow{font-family:"Baloo 2";font-weight:700;color:#fff;font-size:15px;letter-spacing:1px;
+  text-transform:uppercase;opacity:.9;text-shadow:0 2px 0 rgba(0,0,0,.18);margin-bottom:2px}
+.banner{font-family:"Baloo 2";font-weight:800;color:#fff;font-size:30px;text-align:center;
+  text-shadow:0 3px 0 rgba(0,0,0,.18);margin-bottom:8px;line-height:1.1}
+.banner.ink{color:var(--ink);text-shadow:none}
+
+.bot{width:124px;height:124px;filter:drop-shadow(0 8px 0 rgba(0,0,0,.12));transition:transform .3s}
+.bot.bob{animation:bob 2.2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.wob{animation:wob 1.2s ease-in-out infinite}
+@keyframes wob{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+
+.say{background:#fff;border-radius:20px;padding:13px 20px;margin-top:14px;
+  font-family:"Baloo 2";font-weight:700;font-size:24px;line-height:1.15;text-align:center;
+  max-width:300px;box-shadow:0 6px 0 rgba(0,0,0,.08);position:relative;min-height:28px}
+.say::before{content:"";position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+  border:10px solid transparent;border-bottom-color:#fff}
+.say.good{color:var(--good)} .say.bad{color:var(--bad)}
+
+.cardwrap{height:220px;display:flex;align-items:center;justify-content:center;gap:10px}
+.card{width:240px;height:185px;background:#fff;border-radius:22px;box-shadow:0 10px 0 rgba(0,0,0,.10);
+  padding:10px;position:relative;transition:transform .45s cubic-bezier(.2,.8,.25,1),opacity .45s}
+.card.small{width:100px;height:120px;padding:6px}
+.card.toBot{transform:translateY(-150px) scale(.15) rotate(-12deg);opacity:0}
+.card.shake{animation:shakeX .5s}
+@keyframes shakeX{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.tag{position:absolute;top:-14px;right:-10px;min-width:42px;height:42px;padding:0 8px;border-radius:21px;
+  display:grid;place-items:center;color:#fff;font-family:"Baloo 2";font-weight:800;font-size:15px;
+  box-shadow:0 4px 0 rgba(0,0,0,.12);transition:transform .25s}
+.tag.g{background:var(--good)} .tag.b{background:var(--bad)}
+.tag.fixed{transform:scale(1.12) rotate(6deg)}
+
+.choices{display:flex;gap:14px;justify-content:center;padding:6px 0 22px;flex-wrap:wrap}
+.btn{border:0;cursor:pointer;font-family:"Baloo 2";font-weight:800;font-size:26px;color:#fff;
+  border-radius:20px;padding:16px 0;width:128px;display:flex;flex-direction:column;align-items:center;gap:2px;
+  box-shadow:0 6px 0 rgba(0,0,0,.18);transition:transform .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.btn .ico{font-size:24px}
+.btn.g{background:var(--good)} .btn.b{background:var(--bad)} .btn.n{background:var(--bot-deep)}
+.btn.check{font-size:20px}
+.btn[disabled]{opacity:.45;pointer-events:none}
+
+.go{border:0;cursor:pointer;font-family:"Baloo 2";font-weight:800;font-size:23px;color:var(--ink);
+  background:var(--sun);border-radius:24px;padding:15px 32px;box-shadow:0 7px 0 var(--sun-deep);
+  transition:transform .08s;margin-top:18px}
+.go:active{transform:translateY(4px);box-shadow:0 3px 0 var(--sun-deep)}
+
+.recap{display:flex;flex-direction:column;gap:10px;width:100%;max-width:310px;margin-top:6px}
+.rcard{background:#fff;border-radius:16px;padding:11px 14px;display:flex;align-items:center;gap:12px;
+  box-shadow:0 5px 0 rgba(0,0,0,.08);font-family:"Baloo 2";font-weight:700;font-size:17px;
+  border-left:8px solid var(--good);animation:fade .4s both}
+.rcard .face{font-size:24px}
+
+/* ---- intro: real-video player + prototype placeholder ---- */
+.skip{position:absolute;top:12px;right:14px;z-index:9;background:rgba(0,0,0,.42);color:#fff;border:0;
+  border-radius:14px;padding:6px 13px;font-family:"Baloo 2";font-weight:700;font-size:14px;cursor:pointer}
+.vid{position:absolute;inset:0;background:#08231a;display:flex;align-items:center;justify-content:center}
+.vid video{width:100%;height:100%;object-fit:cover}
+.playbtn{position:absolute;width:84px;height:84px;border-radius:50%;border:0;cursor:pointer;
+  background:rgba(43,127,224,.88);color:#fff;font-size:34px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.mutebtn{position:absolute;top:12px;left:12px;z-index:7;width:44px;height:44px;border:0;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;font-size:20px;line-height:1;cursor:pointer}
+.vspin{position:absolute;display:none;flex-direction:column;align-items:center;gap:10px;pointer-events:none}
+.vspin.on{display:flex}
+.vspin .ring{width:46px;height:46px;border-radius:50%;border:5px solid rgba(255,255,255,.25);border-top-color:#fff;animation:spin 1s linear infinite}
+.vspin .vlbl{color:#fff;font-family:"Baloo 2";font-weight:700;font-size:14px;text-shadow:0 2px 6px rgba(0,0,0,.5)}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* prototype placeholder slate (shown when no INTRO_VIDEO is set) */
+.slate-tag{font-family:"Baloo 2";font-weight:800;color:var(--court);font-size:13px;letter-spacing:2px;text-transform:uppercase;opacity:.85}
+.slate-frame{width:100%;max-width:290px;aspect-ratio:16/10;margin:14px 0 20px;border-radius:20px;
+  border:3px dashed rgba(31,122,77,.45);background:rgba(255,255,255,.55);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.slate-frame .pbig{width:62px;height:62px;border-radius:50%;background:var(--bot);color:#fff;
+  display:grid;place-items:center;font-size:24px;padding-left:4px;box-shadow:0 6px 0 var(--bot-deep)}
+.slate-frame .lbl{font-family:"Baloo 2";font-weight:700;color:#3a4a44;font-size:14px}
+.slate-title{font-family:"Baloo 2";font-weight:800;color:var(--ink);font-size:28px;margin-bottom:6px}
+.slate-desc{font-family:"Nunito";font-weight:600;color:#3a4a44;font-size:15px;line-height:1.45;max-width:290px}
+
+.wbtn{position:absolute;left:12px;bottom:12px;z-index:20;background:var(--bot);color:#fff;border:0;border-radius:16px;
+  padding:8px 12px;font-family:"Baloo 2";font-weight:800;font-size:13px;box-shadow:0 4px 0 var(--bot-deep);cursor:pointer}
+.gloss{position:absolute;inset:0;z-index:30;background:rgba(8,35,26,.80);display:none;flex-direction:column;padding:22px 18px;overflow:auto}
+.gloss.open{display:flex}
+.gloss h3{font-family:"Baloo 2";color:#fff;font-size:23px;margin:4px 0 14px;text-align:center}
+.gcard{background:#fff;border-radius:14px;padding:11px 14px;margin-bottom:10px;box-shadow:0 4px 0 rgba(0,0,0,.15)}
+.gterm{font-family:"Baloo 2";font-weight:800;color:var(--court);font-size:16px}
+.gdef{font-family:"Nunito";font-weight:600;color:#333;font-size:14px;line-height:1.35}
+.gclose{align-self:center;margin-top:6px;background:var(--sun);border:0;border-radius:16px;padding:11px 24px;font-family:"Baloo 2";font-weight:800;cursor:pointer}
+
+.kw{color:var(--bot-deep);font-weight:800;border-bottom:2px dotted var(--bot);cursor:pointer}
+.qchoices{display:flex;flex-direction:column;gap:10px;align-items:center;padding:6px 0 20px;width:100%}
+.qbtn{width:auto;max-width:296px;min-width:180px;padding:13px 18px;font-size:17px;line-height:1.15;text-align:center}
+
+.fade{animation:fade .35s} @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div id="phone">
+  <div id="levels" class="levels"></div>
+  <div id="hud" class="hud hidden"></div>
+  <div id="stage" class="stage"></div>
+</div>
+
+<script>
+/* ===================== LOCALISATION ============================
+   Add a language: copy `en`, translate the values (keys stay),
+   set LANG. Baloo 2 renders Devanagari, so Hindi needs no setup.
+   ============================================================== */
+let LANG = "en";
+const STRINGS = {
+  en:{
+    title:"AI Ref", tapToStart:"Tap to play",
+    intro1:"Meet Ref-Bot! 🤖", intro2:"Real games use AI refs!", intro3:"Teach it: IN or OUT?",
+    objHook:"AI is clever, but it is NOT perfect. Can YOU train a fair AI ref?",
+    objSteps:"Let’s go on a learning journey and find out!",
+    objGo:"Start the journey!",
+    skip:"Skip", start:"Start", loading:"Loading\u2026",
+    finish:"Finish", outroTag:"Well done!", outroLabel:"Ending video will play here",
+    outroDesc:"A short 20 second video will celebrate what you learned. You are an AI trainer now!", wordsBtn:"Words", glossaryTitle:"Key words", gotIt:"Got it",
+    glossary:[
+      ["Training data","The examples we show the AI so it can learn."],
+      ["Model training","Showing the AI many examples so it learns to decide by itself."],
+      ["Label","The answer we put on each example: IN or OUT."],
+      ["Model","The 'brain' the AI builds from all the examples."],
+      ["Bias","When an AI only learns one kind of example, so it gets other kinds wrong."],
+      ["Diverse data","Many different examples: many angles, close and far, both sides."],
+      ["Good data","Examples that are clear and varied, so the AI learns well."]
+    ],
+    ph_tag:"Prototype", ph_label:"Intro video will play here",
+    ph_desc:"See how real games use AI to call the line. Then train your own AI ref!",
+    inWord:"IN", outWord:"OUT", inCall:"IN!", outCall:"OUT!",
+    yes:"Yes!", lookAgain:"Look again",
+    testNow:"Test it!", warm:"Easy one first!", thinking:"Hmm…", next:"Next", again:"Play again", lvl:"Level",
+
+    /* L1 opener — only IN examples */
+    l1_banner:"Teach Ref-Bot", l1_ask:"IN or OUT?", l1_learned:"All done!",
+    /* L2 the fix — IN and OUT */
+    l2_banner:"In and out", l2_ask:"IN or OUT?", l2_learned:"Ref-Bot learned!",
+    l2_done:"It saw IN and OUT. Smart!",
+    /* L4 right calls (labels) */
+    l4_banner:"Check the calls", l4_find:"One call is wrong. Tap to fix!",
+    l4_fixed:"Fixed! ✓", l4_fine:"That one is right", l4_learned:"Now it's correct!",
+    l4_done:"Right calls = smart Ref!",
+    /* L5 oversight */
+    l5_banner:"You check Ref-Bot", l5_intro:"Ref-Bot calls. You check it!",
+    l5_guessIn:"IN?", l5_guessOut:"OUT?", l5_right:"Right", l5_fix:"Fix it",
+    l5_thanks:"Thanks! I learned 🙏", l5_relook:"Hmm, look again", l5_wasRight:"It was right!",
+    l5_done:"You fixed its mistakes!",
+
+    /* L6 diversity & bias level labels */
+    l6_banner:"Train Ref-Bot", l6_ask:"IN or OUT?",
+    l6_learned:"All trained!", l6_learned2:"Trained again!", l6_more:"Show it MANY kinds!",
+
+    /* recap — one short line per level; recap() reads these in LEVELS order */
+    recapTitle:"You taught Ref-Bot!",
+    rec_bias:"Show IN and OUT", rec_learn:"It learns from examples",
+    rec_diversity:"Many kinds = no bias",
+    rec_labels:"Right calls matter",
+    rec_check:"People check AI",
+    tx:{
+        b1:"Nice! It called the IN shot right. But it missed the OUT one.",
+        bQ:"Why do you think it got the OUT shot wrong?",
+        bA1:"It never saw an OUT before",
+        bA2:"We did not train it enough times",
+        bA2no:"More training will not help if it never saw an OUT.",
+        bGood:"Exactly!",
+        b2:"We only put IN shots in its <b class='kw' onclick='window.__gloss&&window.__gloss()'>training data</b>.",
+        b3:"So IN was the only <b class='kw' onclick='window.__gloss&&window.__gloss()'>label</b> it learned.",
+        b4:"Show it IN and OUT next time. Then it can learn both!",
+        L1:"This time it saw IN and OUT in its <b class='kw' onclick='window.__gloss&&window.__gloss()'>training data</b>.",
+        LQ:"So what can Ref-Bot do now?",
+        LA1:"Call both IN and OUT",
+        LA2:"Call every shot perfectly, always",
+        LA2no:"Even a well-trained AI is not perfect.",
+        LGood:"Yes!",
+        L2:"It learned from the examples. Great teaching!",
+        bf1:"It nailed the easy shot, then missed the close one.",
+        bfQ:"Why did the close call trip it up?",
+        bfA1:"It only practiced easy, far shots",
+        bfA2:"Close calls are impossible for any AI",
+        bfA2no:"Watch what happens when we add close-call practice.",
+        bfGood:"Right!",
+        bf2:"All its examples were easy and far from the line.",
+        bf3:"Learning only one kind of shot is called <b class='kw' onclick='window.__gloss&&window.__gloss()'>bias</b>.",
+        bf4:"Let's fix it. Show it many kinds of shots!",
+        bx1:"Now it saw many kinds of shots.",
+        bxQ:"What made the new <b class='kw' onclick='window.__gloss&&window.__gloss()'>training data</b> better?",
+        bxA1:"Many angles, clear and varied",
+        bxA2:"Just more of the same easy shots",
+        bxA2no:"Think about the mix we showed it.",
+        bxGood:"Exactly!",
+        bx2:"<b class='kw' onclick='window.__gloss&&window.__gloss()'>diverse data</b> and <b class='kw' onclick='window.__gloss&&window.__gloss()'>good data</b> remove <b class='kw' onclick='window.__gloss&&window.__gloss()'>bias</b>.",
+        bx3:"So this time it judged the close call right!",
+        la1:"You found the wrong one!",
+        laQ:"One shot had the wrong <b class='kw' onclick='window.__gloss&&window.__gloss()'>label</b>. Why does that matter?",
+        laA1:"It learns the wrong thing",
+        laA2:"It will fix the mistake by itself",
+        laA2no:"Ref-Bot cannot fix a label on its own; it just believes it.",
+        laGood:"Yes!",
+        la2:"Right <b class='kw' onclick='window.__gloss&&window.__gloss()'>label</b>s mean right learning.",
+        ch1:"You checked every call!",
+        chQ:"Why do people still check the AI?",
+        chA1:"Because it is not perfect",
+        chA2:"Because AI is usually wrong",
+        chA2no:"It is usually right, but not always.",
+        chGood:"Exactly!",
+        ch2:"AI is fast, but not perfect. People keep it fair."
+      }
+  },
+  hi:{
+    title:"AI Ref",
+    tapToStart:"खेलने के लिए टैप करें",
+    intro1:"मिलिए Ref-Bot से! 🤖",
+    intro2:"असली खेलों में AI रेफ़री होते हैं!",
+    intro3:"इसे सिखाओ: IN या OUT?",
+    objHook:"AI होशियार है, पर यह परफ़ेक्ट नहीं है। क्या तुम एक अच्छा AI रेफ़री सिखा सकते हो?",
+    objSteps:"आओ सीखने की यात्रा पर चलें और पता करें!",
+    objGo:"यात्रा शुरू करें!",
+    skip:"छोड़ें",
+    start:"शुरू करें",
+    loading:"लोड हो रहा है…",
+    finish:"समाप्त करें",
+    outroTag:"शाबाश!",
+    outroLabel:"यहाँ अंतिम वीडियो चलेगा",
+    outroDesc:"एक छोटा 20 सेकंड का वीडियो तुम्हारी सीख का जश्न मनाएगा। अब तुम एक AI ट्रेनर हो!",
+    wordsBtn:"शब्द",
+    glossaryTitle:"मुख्य शब्द",
+    gotIt:"समझ गया",
+    glossary:[
+      ["प्रशिक्षण डेटा","वे उदाहरण जो हम AI को सिखाने के लिए दिखाते हैं।"],
+      ["मॉडल प्रशिक्षण","AI को बहुत सारे उदाहरण दिखाना ताकि वह खुद फ़ैसला करना सीखे।"],
+      ["लेबल","हर उदाहरण पर लिखा उत्तर: IN या OUT।"],
+      ["मॉडल","सभी उदाहरणों से AI जो 'दिमाग' बनाता है।"],
+      ["पक्षपात","जब AI केवल एक तरह के उदाहरण सीखता है, तो दूसरी तरह के गलत कर देता है।"],
+      ["विविध डेटा","कई अलग-अलग उदाहरण: कई कोण, पास और दूर, दोनों तरफ।"],
+      ["अच्छा डेटा","साफ़ और विविध उदाहरण, ताकि AI अच्छे से सीखे।"]
+    ],
+    ph_tag:"प्रोटोटाइप",
+    ph_label:"यहाँ परिचय वीडियो चलेगा",
+    ph_desc:"देखो कि असली खेल लाइन बताने के लिए AI का उपयोग कैसे करते हैं। फिर अपना खुद का AI रेफ़री सिखाओ!",
+    inWord:"IN",
+    outWord:"OUT",
+    inCall:"IN!",
+    outCall:"OUT!",
+    yes:"सही!",
+    lookAgain:"फिर से देखो",
+    testNow:"इसे परखो!",
+    warm:"पहले एक आसान!",
+    thinking:"हम्म…",
+    next:"आगे",
+    again:"फिर से खेलें",
+    lvl:"स्तर",
+    l1_banner:"Ref-Bot को सिखाओ",
+    l1_ask:"IN या OUT?",
+    l1_learned:"हो गया!",
+    l2_banner:"IN और OUT",
+    l2_ask:"IN या OUT?",
+    l2_learned:"Ref-Bot ने सीखा!",
+    l2_done:"इसने IN और OUT देखे। होशियार!",
+    l4_banner:"फ़ैसले जाँचो",
+    l4_find:"एक फ़ैसला गलत है। ठीक करने के लिए टैप करो!",
+    l4_fixed:"ठीक हुआ! ✓",
+    l4_fine:"वह सही है",
+    l4_learned:"अब यह सही है!",
+    l4_done:"सही फ़ैसले = होशियार रेफ़री!",
+    l5_banner:"तुम Ref-Bot को जाँचो",
+    l5_intro:"Ref-Bot फ़ैसला देता है। तुम जाँचो!",
+    l5_guessIn:"IN?",
+    l5_guessOut:"OUT?",
+    l5_right:"सही",
+    l5_fix:"ठीक करो",
+    l5_thanks:"धन्यवाद! मैंने सीखा 🙏",
+    l5_relook:"हम्म, फिर से देखो",
+    l5_wasRight:"वह सही था!",
+    l5_done:"तुमने इसकी गलतियाँ ठीक कीं!",
+    l6_banner:"Ref-Bot को प्रशिक्षित करो",
+    l6_ask:"IN या OUT?",
+    l6_learned:"प्रशिक्षण पूरा!",
+    l6_learned2:"फिर से प्रशिक्षित!",
+    l6_more:"इसे कई तरह के दिखाओ!",
+    recapTitle:"तुमने Ref-Bot को सिखाया!",
+    rec_bias:"IN और OUT दिखाओ",
+    rec_learn:"यह उदाहरणों से सीखता है",
+    rec_diversity:"कई तरह = कोई पक्षपात नहीं",
+    rec_labels:"सही फ़ैसले ज़रूरी हैं",
+    rec_check:"लोग AI को जाँचते हैं",
+    tx:{
+        b1:"बढ़िया! इसने IN शॉट सही बताया। पर OUT वाला चूक गया।",
+        bQ:"तुम्हें क्यों लगता है कि इसने OUT शॉट गलत बताया?",
+        bA1:"इसने पहले कभी OUT नहीं देखा",
+        bA2:"हमने इसे पर्याप्त बार प्रशिक्षित नहीं किया",
+        bA2no:"अगर इसने कभी OUT नहीं देखा तो ज़्यादा प्रशिक्षण से मदद नहीं मिलेगी।",
+        bGood:"बिलकुल सही!",
+        b2:"हमने इसके <b class='kw' onclick='window.__gloss&&window.__gloss()'>प्रशिक्षण डेटा</b> में केवल IN शॉट डाले।",
+        b3:"तो IN ही एकमात्र <b class='kw' onclick='window.__gloss&&window.__gloss()'>लेबल</b> था जो इसने सीखा।",
+        b4:"अगली बार इसे IN और OUT दिखाओ। तब यह दोनों सीखेगा!",
+        L1:"इस बार इसने अपने <b class='kw' onclick='window.__gloss&&window.__gloss()'>प्रशिक्षण डेटा</b> में IN और OUT देखे।",
+        LQ:"तो अब Ref-Bot क्या कर सकता है?",
+        LA1:"IN और OUT दोनों बता सकता है",
+        LA2:"हर शॉट हमेशा परफ़ेक्ट बता सकता है",
+        LA2no:"अच्छी तरह प्रशिक्षित AI भी परफ़ेक्ट नहीं होता।",
+        LGood:"हाँ!",
+        L2:"इसने उदाहरणों से सीखा। बढ़िया सिखाया!",
+        bf1:"इसने आसान शॉट सही बताया, फिर पास वाला चूक गया।",
+        bfQ:"पास वाला फ़ैसला क्यों गड़बड़ा गया?",
+        bfA1:"इसने केवल आसान, दूर के शॉट का अभ्यास किया",
+        bfA2:"पास वाले फ़ैसले किसी भी AI के लिए नामुमकिन हैं",
+        bfA2no:"देखो जब हम पास वाले शॉट का अभ्यास जोड़ते हैं तो क्या होता है।",
+        bfGood:"सही!",
+        bf2:"इसके सारे उदाहरण आसान और लाइन से दूर थे।",
+        bf3:"केवल एक तरह का शॉट सीखना <b class='kw' onclick='window.__gloss&&window.__gloss()'>पक्षपात</b> कहलाता है।",
+        bf4:"आओ इसे ठीक करें। इसे कई तरह के शॉट दिखाओ!",
+        bx1:"अब इसने कई तरह के शॉट देखे।",
+        bxQ:"नए <b class='kw' onclick='window.__gloss&&window.__gloss()'>प्रशिक्षण डेटा</b> को बेहतर किसने बनाया?",
+        bxA1:"कई कोण, साफ़ और विविध",
+        bxA2:"बस वही आसान शॉट, बस ज़्यादा",
+        bxA2no:"सोचो हमने इसे कैसा मिश्रण दिखाया।",
+        bxGood:"बिलकुल सही!",
+        bx2:"<b class='kw' onclick='window.__gloss&&window.__gloss()'>विविध डेटा</b> और <b class='kw' onclick='window.__gloss&&window.__gloss()'>अच्छा डेटा</b> <b class='kw' onclick='window.__gloss&&window.__gloss()'>पक्षपात</b> हटाते हैं।",
+        bx3:"तो इस बार इसने पास वाला फ़ैसला सही बताया!",
+        la1:"तुमने गलत वाला ढूँढ लिया!",
+        laQ:"एक शॉट पर गलत <b class='kw' onclick='window.__gloss&&window.__gloss()'>लेबल</b> था। यह क्यों मायने रखता है?",
+        laA1:"यह गलत चीज़ सीखता है",
+        laA2:"यह गलती खुद ठीक कर लेगा",
+        laA2no:"Ref-Bot लेबल खुद ठीक नहीं कर सकता; वह बस उस पर भरोसा करता है।",
+        laGood:"हाँ!",
+        la2:"सही <b class='kw' onclick='window.__gloss&&window.__gloss()'>लेबल</b> मतलब सही सीख।",
+        ch1:"तुमने हर फ़ैसला जाँचा!",
+        chQ:"लोग AI को फिर भी क्यों जाँचते हैं?",
+        chA1:"क्योंकि यह परफ़ेक्ट नहीं है",
+        chA2:"क्योंकि AI अक्सर गलत होता है",
+        chA2no:"यह अक्सर सही होता है, पर हमेशा नहीं।",
+        chGood:"बिलकुल सही!",
+        ch2:"AI तेज़ है, पर परफ़ेक्ट नहीं। लोग इसे निष्पक्ष रखते हैं।"
+      }
+  }
+};
+let T = STRINGS.en;
+function speak(/*key*/){ /* new Audio(`audio/${LANG}/${key}.mp3`).play() — wire per-language voice here */ }
+
+/* ===================== SVG ART ================================ */
+/* Recognizable shuttlecock: flared feather skirt tapering to a rounded cork. */
+function shuttleShape(rot){
+  return `<g transform="rotate(${rot||0})"><g transform="translate(-24,-46)">
+    <path d="M24 42 L9 9 Q24 3 39 9 Z" fill="#fff" stroke="#b9c4be" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M24 41 L24 5M24 41 L16 6.5M24 41 L32 6.5M24 41 L11.5 10M24 41 L36.5 10" stroke="#dbe2dd" stroke-width="1.1"/>
+    <path d="M17 30 Q24 33.5 31 30" stroke="#c7d0cb" stroke-width="1.5" fill="none"/>
+    <circle cx="24" cy="46" r="8.5" fill="#ffd34d" stroke="#e0a800" stroke-width="1.6"/>
+    <path d="M15.6 47 a8.5 8.5 0 0 0 16.8 0 Z" fill="#f0b429"/>
+  </g></g>`;
+}
+function shuttleIcon(){return `<svg viewBox="-20 -46 40 62">${shuttleShape(0)}</svg>`;}
+
+/* Ref-Bot: friendly robot + referee cues (chest stripe band + side stripes) */
+function bot(mood,extra){ // happy | think | proud | confused
+  const eyes={
+    happy:`<circle cx="44" cy="56" r="9"/><circle cx="76" cy="56" r="9"/><circle cx="47" cy="53" r="3" fill="#fff"/><circle cx="79" cy="53" r="3" fill="#fff"/>`,
+    think:`<rect x="36" y="52" width="16" height="7" rx="3.5"/><rect x="68" y="52" width="16" height="7" rx="3.5"/>`,
+    proud:`<path d="M36 58q8 -10 16 0" stroke="#0e2a20" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M68 58q8 -10 16 0" stroke="#0e2a20" stroke-width="5" fill="none" stroke-linecap="round"/>`,
+    confused:`<path d="M38 50l14 12M52 50l-14 12" stroke="#0e2a20" stroke-width="5" stroke-linecap="round"/><path d="M70 50l14 12M84 50l-14 12" stroke="#0e2a20" stroke-width="5" stroke-linecap="round"/>`
+  }[mood||"happy"];
+  const mouth={
+    happy:`<path d="M48 74q12 12 24 0" stroke="#0e2a20" stroke-width="5" fill="none" stroke-linecap="round"/>`,
+    think:`<rect x="52" y="76" width="16" height="5" rx="2.5"/>`,
+    proud:`<path d="M48 74q12 12 24 0" stroke="#0e2a20" stroke-width="5" fill="none" stroke-linecap="round"/>`,
+    confused:`<circle cx="60" cy="78" r="7"/>`
+  }[mood||"happy"];
+  // referee chest stripe band (black/white)
+  let band=""; for(let i=0;i<5;i++){ band+=`<rect x="${30+i*12}" y="86" width="12" height="8" fill="${i%2?'#fff':'#0e2a20'}"/>`; }
+  return `<svg class="bot bob ${extra||''}" viewBox="0 0 120 120" id="bot" fill="#0e2a20">
+    <line x1="60" y1="14" x2="60" y2="2" stroke="#2b7fe0" stroke-width="4"/><circle cx="60" cy="6" r="6" fill="#ffc53d"/>
+    <rect x="20" y="20" width="80" height="76" rx="26" fill="#4da3ff"/>
+    <rect x="22" y="56" width="6" height="30" rx="3" fill="#2b7fe0"/><rect x="92" y="56" width="6" height="30" rx="3" fill="#2b7fe0"/>
+    <rect x="30" y="32" width="60" height="46" rx="20" fill="#eaf4ff"/>
+    ${eyes}${mouth}
+    <g>${band}</g>
+    <rect x="40" y="96" width="16" height="16" rx="6" fill="#2b7fe0"/><rect x="64" y="96" width="16" height="16" rx="6" fill="#2b7fe0"/>
+  </svg>`;
+}
+
+/* an example: a court with a boundary line; the shuttle lands IN (on court)
+   or OUT (past the line). Angles vary so the shuttle is shown from many sides. */
+const SPOTS={
+  farIn:[86,102,-12], highIn:[98,58,9], lowIn:[104,140,-5], midIn:[122,92,15],
+  closeIn:[138,112,-8], closeInHi:[134,66,11],
+  closeOut:[176,116,12], closeOutLo:[172,148,-9],
+  farOut:[206,98,6], highOut:[202,60,-13], lowOut:[200,144,5]
+};
+let _shotId=0;
+function shot(kind,spot,opts){ // opts:{blur,rot}. blur = low-quality training image.
+  opts=opts||{};
+  const p = SPOTS[spot] || (kind==="in"?SPOTS.farIn:SPOTS.farOut);
+  const x=p[0], y=p[1], rot=(opts.rot!=null?opts.rot:(p[2]||0));
+  const blur=opts.blur, bid="bl"+(_shotId++);
+  return `<svg viewBox="0 0 240 175" width="100%" height="100%">
+    ${blur?`<defs><filter id="${bid}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.4"/></filter></defs>`:''}
+    <g ${blur?`filter="url(#${bid})"`:''}>
+      <rect x="0" y="14" width="240" height="150" rx="10" fill="var(--in)"/>
+      <path d="M160 14 H230 a10 10 0 0 1 10 10 V154 a10 10 0 0 1 -10 10 H160 Z" fill="var(--out)"/>
+      <rect x="153" y="14" width="9" height="150" fill="#fff"/>
+      <ellipse cx="${x}" cy="${y+13}" rx="14" ry="5" fill="rgba(0,0,0,.12)"/>
+      <circle cx="${x}" cy="${y}" r="19" fill="none" stroke="#6b7b73" stroke-width="3.5" stroke-dasharray="5 7"/>
+      <g transform="translate(${x},${y}) scale(0.6)">${shuttleShape(rot)}</g>
+    </g>
+  </svg>`;
+}
+
+/* ===================== ENGINE ================================= */
+const stage=document.getElementById("stage"), hud=document.getElementById("hud"), lvbar=document.getElementById("levels");
+const PIPS=5; let pipsOn=0;
+
+function buildHud(){hud.innerHTML="";for(let i=0;i<PIPS;i++){const p=document.createElement("div");p.className="pip";p.innerHTML=shuttleIcon();hud.appendChild(p);}}
+function setHud(on){hud.classList.toggle("hidden",!on);}
+function resetPips(){pipsOn=0;[...hud.children].forEach(p=>p.className="pip");}
+function lightPip(){const p=hud.children[pipsOn];if(p){p.classList.add("on","pop");}pipsOn++;}
+function buildLevelBar(){lvbar.innerHTML="";LEVELS.forEach(()=>{const d=document.createElement("div");d.className="lv";lvbar.appendChild(d);});}
+function markLevels(i){[...lvbar.children].forEach((d,k)=>{d.className="lv"+(k<i?" done":k===i?" now":"");});}
+
+function clear(){stage.innerHTML="";}
+function el(html){const d=document.createElement("div");d.innerHTML=html.trim();return d.firstChild;}
+function screen(inner){clear();const m=el(`<div class="middle fade">${inner}</div>`);stage.appendChild(m);return m;}
+function setBot(m,mood,extra){const b=m.querySelector("#bot");if(b)b.outerHTML=bot(mood,extra);}
+function setSay(m,txt,cls){const s=m.querySelector(".say");s.className="say "+(cls||"");s.innerHTML=txt;s.classList.remove("fade");void s.offsetWidth;s.classList.add("fade");}
+
+/* dialogue: step through [ [text,mood,cls], … ] then call done() */
+function dialogue(lines,done,head){
+  let i=0;
+  const m=screen(`${head||""}${bot(lines[0][1]||"happy")}<div class="say"></div><button class="go">▶</button>`);
+  const go=m.querySelector(".go");
+  function show(){const [t,mood,cls]=lines[i];setBot(m,mood||"happy");setSay(m,t,cls||"");}
+  show(); speak();
+  go.onclick=()=>{i++; if(i>=lines.length) done(); else {show();speak();}};
+}
+
+/* shared TEST screen. If cfg.warmup is set, Ref-Bot first nails a call it
+   already knows (a confidence-building win) before the graded test. */
+function runTest(cfg,done){
+  setHud(false);
+  function judge(test,testSpot,verdict,wrong,banner,after){
+    const m=screen(`<div class="banner ink">${banner}</div>
+      <div class="cardwrap"><div class="card">${shot(test,testSpot)}</div></div>
+      ${bot("think","wob")}<div class="say">${T.thinking}</div>`);
+    speak();
+    setTimeout(()=>{
+      setBot(m, wrong?"confused":"proud");
+      setSay(m,"🚩 "+(verdict==="in"?T.inCall:T.outCall)+(wrong?" ✗":" ✓"), wrong?"bad":"good");
+      speak();
+      setTimeout(after,1300);
+    },1150);
+  }
+  if(cfg.warmup){
+    const w=cfg.warmup;
+    judge(w.test,w.testSpot,w.verdict,false,T.warm,
+      ()=> judge(cfg.test,cfg.testSpot,cfg.verdict,cfg.wrong,T.testNow,done));
+  } else {
+    judge(cfg.test,cfg.testSpot,cfg.verdict,cfg.wrong,T.testNow,done);
+  }
+}
+
+function doneScreen(line,onNext){
+  const m=screen(`${bot("proud")}<div class="say good">${line}</div><button class="go">▶ ${T.next}</button>`);
+  m.querySelector(".go").onclick=onNext; speak();
+}
+
+/* shared: kid labels each shuttle IN/OUT; calls onDone when the deck is empty.
+   items may be "in"/"out" strings or {kind,spot} objects. */
+function labelDeck(items, ask, onDone){
+  const deck=items.map(it=> typeof it==="string"?{kind:it}:it).sort(()=>Math.random()-0.5); let idx=0;
+  (function feed(){
+    if(idx>=deck.length){ return onDone(); }
+    const {kind,spot,blur}=deck[idx];
+    const m=screen(`<div class="cardwrap"><div class="card">${shot(kind,spot,{blur})}</div></div>
+      <div class="say" style="font-size:21px">${ask}</div>
+      <div class="choices">
+        <button class="btn g" data-k="in">${T.inWord}</button>
+        <button class="btn b" data-k="out">${T.outWord}</button></div>`);
+    const card=m.querySelector(".card");
+    m.querySelectorAll(".btn").forEach(b=>b.onclick=()=>{
+      if(b.dataset.k===kind){
+        m.querySelectorAll(".btn").forEach(x=>x.disabled=true);
+        setSay(m,T.yes,"good"); card.classList.add("toBot"); lightPip(); speak();
+        setTimeout(()=>{idx++;feed();},620);
+      }else{ card.classList.add("shake"); setTimeout(()=>card.classList.remove("shake"),500); setSay(m,T.lookAgain,"bad"); }
+    });
+  })();
+}
+
+function trainedThenTest(line,cfg,after){
+  const m=screen(`${bot("proud")}<div class="say good">${line}</div><button class="go">▶ ${T.testNow}</button>`);
+  m.querySelector(".go").onclick=()=>runTest(cfg, after);
+}
+
+/* ---------- MODE: label (kid calls each shuttle IN / OUT) ---------- */
+function modeLabel(L,finish){
+  setHud(true); resetPips();
+  labelDeck(L.deck, L.ask, ()=> trainedThenTest(L.learned, L, ()=> teach(TEACH[L.key], finish)));
+}
+
+/* ---------- MODE: bias (diversity removes bias) ----------
+   Phase A: train on EASY (far) shots only → biased → fails a CLOSE call.
+   Phase B: train on a DIVERSE mix (incl. close) → handles the close call. */
+function modeBias(L,finish){
+  setHud(true); resetPips();
+  const testBiased={test:"out",testSpot:"closeOut",verdict:"in",wrong:true,
+                    warmup:{test:"in",testSpot:"farIn",verdict:"in"}};   // wins an easy call, then mis-calls the close shot
+  const testFixed ={test:"out",testSpot:"closeOut",verdict:"out",wrong:false}; // diverse bot gets it right
+  labelDeck(L.deckEasy, L.ask, ()=>
+    trainedThenTest(L.learned, testBiased, ()=> teach(TEACH.biasFail, ()=>
+      dialogue([[T.l6_more,"think",""]], ()=>{ setHud(true); resetPips();
+        labelDeck(L.deckDiverse, L.ask, ()=>
+          trainedThenTest(L.learned2, testFixed, ()=> teach(TEACH.biasFixed, finish)));
+      }))));
+}
+
+/* ---------- MODE: fix (correct a wrong call/label) ---------- */
+function modeFix(L,finish){
+  setHud(false);
+  const cards=L.cards.map(c=>({...c}));   // each {kind, tag}; one tag != kind
+  const m=screen(`<div class="say" style="font-size:20px;margin-top:0">${L.find}</div>
+    <div class="cardwrap" id="row"></div>`);
+  const row=m.querySelector("#row");
+  function lbl(t){return t==="in"?T.inWord:T.outWord;}
+  function paint(){
+    row.innerHTML="";
+    cards.forEach(c=>{
+      const ok=c.tag===c.kind;
+      const card=el(`<div class="card small">${shot(c.kind)}<div class="tag ${c.tag==='in'?'g':'b'} ${ok&&c.fixed?'fixed':''}">${lbl(c.tag)}</div></div>`);
+      card.onclick=()=>{
+        if(c.tag!==c.kind){ c.tag=c.kind; c.fixed=true; setSay2(T.l4_fixed,"good"); paint();
+          if(cards.every(x=>x.tag===x.kind)) setTimeout(allFixed,700);
+        } else { card.classList.add("shake"); setTimeout(()=>card.classList.remove("shake"),500); setSay2(T.l4_fine,""); }
+      };
+      row.appendChild(card);
+    });
+  }
+  function setSay2(txt,cls){const s=m.querySelector(".say");s.className="say "+cls;s.style.fontSize="20px";s.textContent=txt;}
+  function allFixed(){
+    const mm=screen(`${bot("proud")}<div class="say good">${T.l4_learned}</div><button class="go">▶ ${T.testNow}</button>`);
+    mm.querySelector(".go").onclick=()=>runTest(L,()=>teach(TEACH.labels,finish));
+  }
+  paint();
+}
+
+/* ---------- MODE: check (you verify Ref-Bot) ---------- */
+function modeCheck(L,finish){
+  setHud(true); resetPips();
+  const deck=L.deck.slice(); let idx=0;   // each: {kind, guess}
+  function step(){
+    if(idx>=deck.length){ return teach(TEACH.check, finish); }
+    const {kind,guess}=deck[idx];
+    const m=screen(`<div class="cardwrap"><div class="card">${shot(kind)}</div></div>
+      ${bot("think")}<div class="say">${guess==="in"?T.l5_guessIn:T.l5_guessOut}</div>
+      <div class="choices">
+        <button class="btn g check" data-a="right"><span class="ico">✔</span>${T.l5_right}</button>
+        <button class="btn b check" data-a="fix"><span class="ico">✏️</span>${T.l5_fix}</button></div>`);
+    const correct = guess===kind;
+    m.querySelectorAll(".btn").forEach(b=>b.onclick=()=>{
+      const a=b.dataset.a;
+      const userOK = (a==="right"&&correct)||(a==="fix"&&!correct);
+      if(userOK){
+        m.querySelectorAll(".btn").forEach(x=>x.disabled=true);
+        setBot(m, a==="fix"?"happy":"proud");
+        setSay(m, a==="fix"?T.l5_thanks:T.yes, "good"); lightPip(); speak();
+        setTimeout(()=>{idx++;step();},760);
+      }else{
+        setSay(m, a==="fix"?T.l5_wasRight:T.l5_relook, "bad");
+        const c=m.querySelector(".card"); c.classList.add("shake"); setTimeout(()=>c.classList.remove("shake"),500);
+      }
+    });
+  }
+  dialogue([[T.l5_intro,"happy",""]], step);
+}
+
+/* interactive explanation engine: statements + questions the learner answers.
+   step = {say, mood, cls}  OR  {ask, mood, opts:[{t,ok,no}], good} */
+const kw = t => '<b class="kw" onclick="window.__gloss&&window.__gloss()">'+t+'</b>';
+function teach(steps, finish){
+  setHud(false);
+  let i=0;
+  (function next(){
+    if(i>=steps.length) return finish();
+    const s=steps[i++];
+    if(s.say!==undefined){
+      const m=screen(`${bot(s.mood||"happy")}<div class="say ${s.cls||''}">${s.say}</div><button class="go">\u25b6</button>`);
+      m.querySelector(".go").onclick=next; speak();
+    } else {
+      const O=s.opts.slice().sort(()=>Math.random()-0.5);
+      const m=screen(`${bot(s.mood||"think")}<div class="say">${s.ask}</div>
+        <div class="qchoices">${O.map((o,k)=>`<button class="btn n qbtn" data-k="${k}">${o.t}</button>`).join("")}</div>`);
+      m.querySelectorAll(".btn").forEach(b=>b.onclick=()=>{
+        const o=O[b.dataset.k];
+        if(o.ok){ m.querySelectorAll(".btn").forEach(x=>x.disabled=true); setBot(m,"proud"); setSay(m,s.good||T.yes,"good"); speak(); setTimeout(next,1050); }
+        else { setSay(m, o.no||T.lookAgain, "bad"); }
+      });
+    }
+  })();
+}
+
+/* per-level interactive lessons (questions + keywords, no em-dashes) */
+let TEACH;
+function buildTeach(){ const X=T.tx; TEACH = {
+  bias:[
+    {say:X.b1,mood:"confused",cls:"bad"},
+    {ask:X.bQ,mood:"think",opts:[{t:X.bA1,ok:1},{t:X.bA2,no:X.bA2no}],good:X.bGood},
+    {say:X.b2,mood:"think"},{say:X.b3,mood:"think"},{say:X.b4,mood:"happy",cls:"good"}
+  ],
+  learn:[
+    {say:X.L1,mood:"proud",cls:"good"},
+    {ask:X.LQ,mood:"think",opts:[{t:X.LA1,ok:1},{t:X.LA2,no:X.LA2no}],good:X.LGood},
+    {say:X.L2,mood:"proud",cls:"good"}
+  ],
+  biasFail:[
+    {say:X.bf1,mood:"confused",cls:"bad"},
+    {ask:X.bfQ,mood:"think",opts:[{t:X.bfA1,ok:1},{t:X.bfA2,no:X.bfA2no}],good:X.bfGood},
+    {say:X.bf2,mood:"think"},{say:X.bf3,mood:"think"},{say:X.bf4,mood:"happy",cls:"good"}
+  ],
+  biasFixed:[
+    {say:X.bx1,mood:"proud",cls:"good"},
+    {ask:X.bxQ,mood:"think",opts:[{t:X.bxA1,ok:1},{t:X.bxA2,no:X.bxA2no}],good:X.bxGood},
+    {say:X.bx2,mood:"proud",cls:"good"},{say:X.bx3,mood:"proud",cls:"good"}
+  ],
+  labels:[
+    {say:X.la1,mood:"proud",cls:"good"},
+    {ask:X.laQ,mood:"think",opts:[{t:X.laA1,ok:1},{t:X.laA2,no:X.laA2no}],good:X.laGood},
+    {say:X.la2,mood:"proud",cls:"good"}
+  ],
+  check:[
+    {say:X.ch1,mood:"proud",cls:"good"},
+    {ask:X.chQ,mood:"think",opts:[{t:X.chA1,ok:1},{t:X.chA2,no:X.chA2no}],good:X.chGood},
+    {say:X.ch2,mood:"proud",cls:"good"}
+  ]
+}; }
+
+
+/* ===================== LEVEL DEFINITIONS ======================
+   Add a topic = add an object here. `mode` picks the interaction.
+   kinds are "in" / "out" (shuttle on court vs past the line).
+   ============================================================== */
+let LEVELS;
+function buildLevels(){ LEVELS = [
+  // 1 — OPENER: only IN examples → fails on an OUT (motivates "IN and OUT")
+  { key:"bias", mode:"label", banner:T.l1_banner, ask:T.l1_ask,
+    deck:["in","in","in","in"],                 // never sees an OUT
+    learned:T.l1_learned, test:"out", verdict:"in", wrong:true,
+    warmup:{test:"in", verdict:"in"},           // gets an IN right first, then misses the OUT
+    recap:T.rec_bias },
+
+  // 2 — THE FIX: IN and OUT → same OUT shuttle now called correctly
+  { key:"learn", mode:"label", banner:T.l2_banner, ask:T.l2_ask,
+    deck:["in","out","in","out","in"],
+    learned:T.l2_learned, test:"out", verdict:"out", wrong:false,
+    recap:T.rec_learn },
+
+  // 3 — DIVERSITY & BIAS: easy-only training is biased; a diverse mix is fair
+  { key:"diversity", mode:"bias", banner:T.l6_banner, ask:T.l6_ask,
+    learned:T.l6_learned, learned2:T.l6_learned2,
+    deckEasy:[{kind:"in",spot:"farIn"},{kind:"out",spot:"farOut"},{kind:"in",spot:"highIn"},{kind:"out",spot:"highOut"}],
+    deckDiverse:[{kind:"in",spot:"farIn"},{kind:"out",spot:"closeOut"},{kind:"in",spot:"closeIn",blur:true},{kind:"out",spot:"lowOut"},{kind:"in",spot:"midIn",blur:true}],
+    recap:T.rec_diversity },
+
+  // 4 — call/label quality (why handled inside modeFix)
+  { key:"labels", mode:"fix", banner:T.l4_banner, find:T.l4_find,
+    cards:[{kind:"in",tag:"in"},{kind:"out",tag:"in"},{kind:"out",tag:"out"}], // middle OUT is mis-called IN
+    test:"in", verdict:"in", wrong:false, recap:T.rec_labels },
+
+  // 5 — human oversight (why handled inside modeCheck)
+  { key:"check", mode:"check", banner:T.l5_banner,
+    deck:[{kind:"in",guess:"in"},{kind:"out",guess:"in"},{kind:"out",guess:"out"}], // 2nd guess is wrong
+    recap:T.rec_check }
+]; }
+
+const MODES = { label:modeLabel, bias:modeBias, fix:modeFix, check:modeCheck };
+
+/* ===================== FLOW =================================== */
+let cur=0;
+function startLevel(i){
+  cur=i; markLevels(i); setHud(false); showWords(true);
+  const L=LEVELS[i];
+  dialogue([[L.banner,"happy",""]], ()=>MODES[L.mode](L, nextLevel),
+    `<div class="eyebrow">${T.lvl} ${i+1} / ${LEVELS.length}</div>`);
+}
+function nextLevel(){ if(cur+1<LEVELS.length) startLevel(cur+1); else recap(); }
+
+/* ===================== INTRO (video or cinematic) =============
+   Set INTRO_VIDEO to your own clip path (e.g. "assets/intro.mp4")
+   to play a real video, like AI-for-Farmers' video_intro.mp4.
+   If null, the built-in animated cinematic below plays instead. */
+const INTRO_VIDEO_SRC = { en:"assets/intro.mp4", hi:"assets/intro-hi.mp4" };
+const INTRO_POSTER_SRC = { en:"assets/intro-poster.jpg", hi:"assets/intro-hi-poster.jpg" };
+/* Short (~20s max) celebration video at the end. Same rules as the intro:
+   set to a small mp4 path/URI, or leave null for a placeholder slate. */
+const OUTRO_VIDEO_SRC = { en:"assets/outro.mp4", hi:"assets/outro-hi.mp4" };
+const OUTRO_POSTER_SRC = { en:"assets/outro-poster.jpg", hi:"assets/outro-hi-poster.jpg" };
+
+function afterIntro(){ sceneIntro(); }
+
+let AUD_MUTED=false;
+function addMute(m,v){
+  v.muted=AUD_MUTED;
+  const b=document.createElement("button"); b.type="button"; b.className="mutebtn";
+  b.innerHTML=AUD_MUTED?"\ud83d\udd07":"\ud83d\udd0a";
+  const wrap=m.querySelector(".vid"); if(wrap) wrap.appendChild(b);
+  b.onclick=(e)=>{ e.stopPropagation(); AUD_MUTED=!AUD_MUTED; v.muted=AUD_MUTED; b.innerHTML=AUD_MUTED?"\ud83d\udd07":"\ud83d\udd0a"; };
+}
+function introVideo(){
+  markLevels(-1); setHud(false);
+  const INTRO_VIDEO = INTRO_VIDEO_SRC[LANG]||null, INTRO_POSTER = INTRO_POSTER_SRC[LANG]||null;
+  if(INTRO_VIDEO){
+    const m=screen(`<div class="vid">
+      <video id="iv" playsinline preload="metadata" poster="${INTRO_POSTER}" src="${INTRO_VIDEO}"></video>
+      <div class="vspin" id="ivspin"><div class="ring"></div><div class="vlbl">${T.loading}</div></div>
+      <button class="playbtn" id="ivplay">\u25b6</button>
+      <button class="skip" id="ivskip">${T.skip}</button></div>`);
+    const v=m.querySelector("#iv");
+    const spin=m.querySelector("#ivspin");
+    addMute(m,v);
+    m.querySelector("#ivplay").onclick=()=>{ m.querySelector("#ivplay").style.display="none"; spin.classList.add("on"); v.play(); };
+    v.onwaiting=()=>spin.classList.add("on");
+    v.onstalled=()=>spin.classList.add("on");
+    v.onplaying=()=>spin.classList.remove("on");
+    v.oncanplay=()=>{ if(!v.paused) spin.classList.remove("on"); };
+    v.onended=afterIntro;
+    m.querySelector("#ivskip").onclick=()=>{ try{v.pause();}catch(e){} afterIntro(); };
+  } else {
+    placeholderIntro();
+  }
+}
+
+/* Shown until a real INTRO_VIDEO is supplied: a slate explaining the intro
+   video will go here, with a brief description. */
+function placeholderIntro(){
+  markLevels(-1); setHud(false);
+  const m=screen(`
+    <div class="slate-tag">${T.ph_tag}</div>
+    <div class="slate-frame"><div class="pbig">\u25b6</div><div class="lbl">${T.ph_label}</div></div>
+    <div class="slate-title">\ud83c\udff8 ${T.title}</div>
+    <div class="slate-desc">${T.ph_desc}</div>
+    <button class="go">\u25b6 ${T.start}</button>`);
+  m.querySelector(".go").onclick=afterIntro;
+}
+
+function sceneObjectives(){
+  markLevels(-1); setHud(false);
+  const m=screen(`${bot("happy")}<div class="say" style="font-size:18px">${T.objHook}<div style="font-size:14px;color:#1f7a4d;font-weight:800;margin-top:7px">${T.objSteps}</div></div>
+    <button class="go" style="margin-top:20px">\u25b6 ${T.objGo}</button>`);
+  m.querySelector(".go").onclick=()=>startLevel(0);
+}
+function sceneIntro(){
+  dialogue([[T.intro1,"happy",""],[T.intro2,"proud",""],[T.intro3,"happy",""]], sceneObjectives);
+}
+function recap(){
+  markLevels(LEVELS.length); setHud(false);
+  const items=LEVELS.map(L=>L.recap);
+  const cards=items.map((t,i)=>`<div class="rcard" style="animation-delay:${i*.12}s"><span class="face">\ud83c\udff8</span><span>${t}</span></div>`).join("");
+  const m=screen(`<div class="banner ink" style="font-size:24px">${T.recapTitle}</div>
+    <div class="recap">${cards}</div><button class="go">\u25b6 ${T.finish}</button>`);
+  m.querySelector(".go").onclick=outroVideo;
+}
+
+/* short end video (or placeholder slate). Skippable; never blocks replay. */
+function outroVideo(){
+  markLevels(LEVELS.length); setHud(false); showWords(false);
+  const OUTRO_VIDEO = OUTRO_VIDEO_SRC[LANG]||null, OUTRO_POSTER = OUTRO_POSTER_SRC[LANG]||null;
+  if(OUTRO_VIDEO){
+    const m=screen(`<div class="vid">
+      <video id="ov" playsinline preload="metadata" ${OUTRO_POSTER?`poster="${OUTRO_POSTER}"`:""} src="${OUTRO_VIDEO}"></video>
+      <div class="vspin" id="ovspin"><div class="ring"></div><div class="vlbl">${T.loading}</div></div>
+      <button class="playbtn" id="ovplay">\u25b6</button>
+      <button class="skip" id="ovskip">${T.skip}</button></div>`);
+    const v=m.querySelector("#ov"), spin=m.querySelector("#ovspin");
+    addMute(m,v);
+    m.querySelector("#ovplay").onclick=()=>{ m.querySelector("#ovplay").style.display="none"; spin.classList.add("on"); v.play(); };
+    v.onwaiting=()=>spin.classList.add("on");
+    v.onstalled=()=>spin.classList.add("on");
+    v.onplaying=()=>spin.classList.remove("on");
+    v.oncanplay=()=>{ if(!v.paused) spin.classList.remove("on"); };
+    v.onended=endScreen;
+    m.querySelector("#ovskip").onclick=()=>{ try{v.pause();}catch(e){} endScreen(); };
+  } else {
+    const m=screen(`
+      <div class="slate-tag">${T.outroTag}</div>
+      <div class="slate-frame"><div class="pbig">\u25b6</div><div class="lbl">${T.outroLabel}</div></div>
+      <div class="slate-desc">${T.outroDesc}</div>
+      <button class="go">\u25b6</button>`);
+    m.querySelector(".go").onclick=endScreen;
+  }
+}
+function endScreen(){
+  const m=screen(`${bot("proud")}<div class="say good">${T.recapTitle}</div><button class="go">\u21bb ${T.again}</button>`);
+  m.querySelector(".go").onclick=()=>{resetPips();sceneIntro();};
+}
+
+/* persistent glossary students can open any time to refer back to definitions */
+function buildGlossary(){
+  const phone=document.getElementById("phone");
+  const cards=T.glossary.map(([t,d])=>`<div class="gcard"><div class="gterm">${t}</div><div class="gdef">${d}</div></div>`).join("");
+  const g=document.createElement("div"); g.className="gloss"; g.id="gloss";
+  g.innerHTML=`<h3>\ud83d\udcd6 ${T.glossaryTitle}</h3>${cards}<button class="gclose" id="gclose">${T.gotIt}</button>`;
+  phone.appendChild(g);
+  const b=document.createElement("button"); b.className="wbtn"; b.innerHTML="\ud83d\udcd6 "+T.wordsBtn;
+  phone.appendChild(b); b.style.display="none";
+  window.__gloss=()=>g.classList.add("open"); b.onclick=window.__gloss;
+  g.querySelector("#gclose").onclick=()=>g.classList.remove("open");
+}
+
+function setLang(l){ LANG=l; T=STRINGS[l]||STRINGS.en; buildLevels(); buildTeach(); }
+function langSelect(){
+  setHud(false); markLevels(-1);
+  const m=screen(`${bot("happy")}
+    <div class="banner ink" style="font-size:22px;margin-top:8px">\u092d\u093e\u0937\u093e \u091a\u0941\u0928\u0947\u0902 / Choose language</div>
+    <div class="choices" style="margin-top:18px">
+      <button class="btn n" data-l="en" style="width:150px">English</button>
+      <button class="btn n" data-l="hi" style="width:150px">\u0939\u093f\u0902\u0926\u0940</button></div>`);
+  m.querySelectorAll(".btn").forEach(b=>b.onclick=()=>{ setLang(b.dataset.l); buildLevelBar(); buildGlossary(); introVideo(); });
+}
+
+function showWords(on){ const b=document.querySelector(".wbtn"); if(b) b.style.display=on?"":"none"; }
+
+/* boot */
+buildHud(); langSelect();
+</script>

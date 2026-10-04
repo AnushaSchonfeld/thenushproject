@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#0f0f11">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230f0f11'/><text x='6' y='23' font-family='Arial' font-weight='900' font-size='18' fill='%23f0eeea'>N</text><rect x='21' y='17' width='5' height='5' fill='%23cb5a57'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Baloo+2:wght@600;800&family=Inter:wght@400;700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -24,6 +24,7 @@
   <nav class="links">
     <a href="#mission">Mission</a>
     <a href="#pillars">What we do</a>
+    <a href="#ai-ref">AI Ref</a>
     <a href="#story">Story</a>
     <a href="#join" class="btn small">Get involved</a>
   </nav>
@@ -115,12 +116,41 @@
           <h3>In code — AI Ref</h3>
           <p>Sport and technology belong together. Our AI Ref project explores how artificial intelligence can help officiate games more consistently — and shows girls that they can build the tech behind the sport, not just play it.</p>
           <ul>
-            <li>The AI Ref project</li>
-            <li>Coding with AI for young athletes</li>
+            <li><a href="#ai-ref">Play AI Ref, our free game →</a></li>
+            <li>Free classroom lesson for teachers</li>
             <li>Sport as a way into STEM</li>
           </ul>
         </article>
       </div>
+    </div>
+  </section>
+
+  <!-- AI REF -->
+  <section id="ai-ref" class="airef">
+    <div class="wrap airef-grid">
+      <div class="airef-copy">
+        <p class="airef-eyebrow">AI Literacy</p>
+        <h2>AI Ref: Train Your Own AI Referee</h2>
+        <p class="airef-sub">A free game that teaches kids how AI really learns, no experience needed.</p>
+        <p>Can you teach an AI to make a fair call? In AI Ref, kids become AI trainers: they teach a friendly robot referee, Ref-Bot, to judge whether a badminton shot lands IN or OUT. Instead of just using AI, they build it, showing Ref-Bot examples, testing what it learned, and fixing it when it gets things wrong.</p>
+        <p>Across five quick levels they discover how AI learns from examples, why it needs diverse data to stay fair, and why AI still needs people to check it. Built to run on low-cost phones and low-bandwidth connections, in English and Hindi, with a no-technology classroom version for schools without devices.</p>
+        <div class="airef-ctas">
+          <a class="airef-play" href="play/">Play AI Ref <span aria-hidden="true">▶</span></a>
+          <a class="airef-teach" href="teachers/">For teachers: free classroom lesson →</a>
+        </div>
+        <p class="airef-note">Free. No sign-up. English and Hindi. Ages 8 to 11.</p>
+      </div>
+
+      <a class="airef-visual" href="play/" aria-label="Play AI Ref">
+        <div class="phone">
+          <div class="phone-bar"><span>Level 1</span><span class="pips"><i class="on"></i><i></i><i></i><i></i><i></i></span></div>
+          <div class="phone-court"><img src="img/airef/court-close-call.svg" alt="" width="240" height="175"></div>
+          <div class="phone-q">IN or OUT?</div>
+          <div class="phone-btns"><span class="in">IN</span><span class="out">OUT</span></div>
+        </div>
+        <img class="refbot" src="img/airef/refbot-happy.svg" alt="Ref-Bot, the friendly robot referee" width="150" height="150">
+        <img class="shuttle" src="img/airef/shuttle.svg" alt="" width="54" height="54">
+      </a>
     </div>
   </section>
 
