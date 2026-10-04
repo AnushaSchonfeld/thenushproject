@@ -104,19 +104,27 @@ section.in { opacity: 1; transform: none; }
 .core svg { display: block; width: 100%; height: 100%; fill: none; stroke: var(--accent); stroke-width: .9; stroke-linejoin: round; opacity: .8; }
 .spin { position: absolute; inset: 0; animation: spin 60s linear infinite; }
 .sat { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px;
-  transform: rotate(var(--a)) translateY(-250px) rotate(calc(-1 * var(--a))); }
+  transform: rotate(var(--a)) translateY(var(--r, -250px)) rotate(calc(-1 * var(--a))); }
 .sat { opacity: .6; }
 .sat svg { width: 100%; height: 100%; padding: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 50%;
   fill: none; stroke: var(--text); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round;
   animation: spin 60s linear infinite reverse; }
 .sat:nth-child(odd) svg { stroke: var(--accent); }
+/* inner ring: STEM, turning the other way — sport and STEM orbiting the same girl */
+.spin.inner { animation-direction: reverse; animation-duration: 45s; }
+.sat.s2 { width: 50px; height: 50px; margin: -25px; --r: -140px; }
+.sat.s2 svg { padding: 11px; animation-direction: normal; animation-duration: 45s; }
+.sat.s2:nth-child(odd) svg { stroke: var(--text); }
+.sat.s2:nth-child(even) svg { stroke: var(--accent); }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @media (prefers-reduced-motion: reduce) { .spin, .sat svg, .core { animation: none; } }
 @media (max-width: 1000px) {
   .orbit { width: 360px; right: -120px; top: auto; bottom: 20px; transform: none; }
   .core { width: 64px; height: 64px; margin: -32px; }
-  .sat { width: 48px; height: 48px; margin: -24px; transform: rotate(var(--a)) translateY(-180px) rotate(calc(-1 * var(--a))); }
+  .sat { width: 48px; height: 48px; margin: -24px; --r: -180px; }
+  .sat.s2 { width: 36px; height: 36px; margin: -18px; --r: -100px; }
+  .sat.s2 svg { padding: 7px; }
   .sat svg { padding: 10px; }
 }
 
